@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-# Códigos válidos de estados de México (3 letras)
+# Conjunto con códigos prueba de estados de México
 ESTADOS_MEXICO = {
     "AGU", "BCN", "BCS", "CAM", "CHP", "CHH", "COA", "COL",
     "DUR", "GUA", "GRO", "HID", "JAL", "MEX", "MIC", "MOR",
@@ -11,44 +11,42 @@ ESTADOS_MEXICO = {
 
 def detectar_tipo_geo(serie):
     """
-    Detecta el tipo de unidad geográfica en id_geo:
-      'estado'   -> códigos de 3 letras de estados mexicanos
-      'simpmx'   -> cuadros numéricos de SIMPMX
-      'arbitrario' -> unidades definidas por el usuario
+    Función que detecta el tipo de unidad geográfica en id_geo:
+    tanto si es 'clave_estado' = códigos de 3 letras de estados mexicanos
+      'cuadros' = cuadros numéricos
+      'eleccion_usuario' = unidades definidas por el usuario
     """
     muestra = serie.dropna().astype(str).unique()
 
-    # ¿Son todos numéricos?
-    son_numericos = np.all([v.strip().lstrip("-").isdigit() for v in muestra])
-    if son_numericos:
-        return "simpmx"
+    # Si se reciben datos por cuadros
+    cuadros = np.all([v.strip().lstrip("-").isdigit() for v in muestra])
+    if cuadros:
+        return "cuadros_numericos"
 
-    # ¿Son códigos de estado (3 letras mayúsculas)?
-    son_estados = np.all([v.strip().upper() in ESTADOS_MEXICO for v in muestra])
-    if son_estados:
-        return "estado"
+    # Se reciben claves de estados
+    estados = np.all([v.strip().upper() in ESTADOS_MEXICO for v in muestra])
+    if estados:
+        return "estados"
 
-    return "arbitrario"
+    return "eleccion_usuario"
 
 
-# ── Leer archivo ────────────────────────────────────────────────
+# Comienza el programa, se lee el archivo
 df = pd.read_excel("basePrueba.xlsx")
 
+# Se imprimen 10 resultados ordenados en filas y columnas
 print(f"Filas: {len(df)}  |  Columnas: {list(df.columns)}")
 print(df.head(10))
 
-# ── Detectar tipo de id_geo ─────────────────────────────────────
+# Se detecta el tipo de información que contiene la columna ''id_geo''
 tipo = detectar_tipo_geo(df["id_geo"])
 print(f"\nTipo de unidad geográfica detectada: '{tipo}'")
 
-if tipo == "estado":
+if tipo == "estados":
     print("-> Unidades: estados de México (código 3 letras).")
-    print("   Se puede mapear directamente sobre el mapa estatal.")
 
-elif tipo == "simpmx":
-    print("-> Unidades: cuadros SIMPMX (ID numérico).")
-    print("   Se puede mapear usando la cuadrícula de SIMPMX.")
+elif tipo == "cuadros_numericos":
+    print("-> Unidades: cuadros (ID numérico).")
 
-elif tipo == "arbitrario":
-    print("-> Unidades geográficas arbitrarias (definidas por el usuario).")
-    print("   No tienen representación en el mapa de SIMPMX.")
+elif tipo == "eleccion_usuario":
+    print("-> Unidades geográficas definidas por el usuario.")
