@@ -61,11 +61,18 @@ El programa construye una matriz `taxon_name × id_geo` con valores 0/1 (ausenci
 - Para `estados`: las columnas se renombran a índices numéricos 1–32 según el orden canónico de `ESTADOS_MEXICO`.
 - La matriz se exporta a `matriz_presencia_ausencia.xlsx`.
 
-### Pasos 2–6 — En desarrollo
+### Paso 2 — Agrupar Patrones-G ✅
+
+Agrupa los taxones que tienen exactamente el mismo vector de presencia/ausencia. Cada grupo único es un Patrón-G. El resultado incluye:
+- `taxa_count` — número de taxones que comparten ese patrón
+- `Gi` — número de unidades geográficas con presencia
+
+Los patrones se ordenan por `taxa_count` descendente, luego por `Gi` descendente.
+
+### Pasos 3–6 — En desarrollo
 
 | Paso | Descripción |
 |------|-------------|
-| 2 | Agrupar para identificar los Patrones-G |
 | 3 | Numerar secuencialmente los patrones |
 | 4 | Crear tabla normalizada `rel_gpattern_idgeo` |
 | 5 | Crear relación `rel_gpattern_taxon` + patrón G0 |

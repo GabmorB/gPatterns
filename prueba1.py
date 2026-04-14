@@ -95,3 +95,27 @@ try:
     print("\nMatriz guardada en 'matriz_presencia_ausencia.xlsx'")
 except PermissionError:
     print("\n[Aviso] Cierra 'matriz_presencia_ausencia.xlsx' en Excel e intenta de nuevo.")
+
+
+# ── PASO 2: Agrupar para identificar los Patrones-G ─────────────────────────
+# Agrupa los taxones que tienen exactamente el mismo vector de presencia/ausencia.
+# Cada grupo único es un Patrón-G.
+
+indices = list(presencia_ausencia.columns)
+
+patrones = (
+    presencia_ausencia
+    .groupby(indices, sort=False)
+    .size()
+    .reset_index(name="taxa_count")
+)
+
+patrones["Gi"] = patrones[indices].sum(axis=1)
+
+# Ordenar: mayor taxa_count primero, luego mayor Gi
+patrones = patrones.sort_values(
+    ["taxa_count", "Gi"], ascending=[False, False]
+).reset_index(drop=True)
+
+print(f"\nPatrones-G identificados: {len(patrones)}")
+print(patrones[["taxa_count", "Gi"]].to_string(index=False))
