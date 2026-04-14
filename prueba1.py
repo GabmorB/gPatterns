@@ -1,13 +1,13 @@
 import pandas as pd
 import numpy as np
 
-# Conjunto con códigos prueba de estados de México
-ESTADOS_MEXICO = {
-    "AGU", "BCN", "BCS", "CAM", "CHP", "CHH", "COA", "COL",
-    "DUR", "GUA", "GRO", "HID", "JAL", "MEX", "MIC", "MOR",
-    "NAY", "NLE", "OAX", "PUE", "QUE", "ROO", "SLP", "SIN",
-    "SON", "TAB", "TAM", "TLA", "VER", "YUC", "ZAC", "CMX"
-}
+# Lista ordenada de los 32 estados de México (ISO 3166-2:MX)
+ESTADOS_MEXICO = [
+    "AGU", "BCN", "BCS", "CAM", "CHH", "CHP", "CMX", "COA",
+    "COL", "DUR", "GRO", "GUA", "HID", "JAL", "MEX", "MIC",
+    "MOR", "NAY", "NLE", "OAX", "PUE", "QUE", "ROO", "SLP",
+    "SIN", "SON", "TAB", "TAM", "TLA", "VER", "YUC", "ZAC"
+]
 
 def detectar_tipo_geo(serie):
     """
@@ -50,3 +50,48 @@ elif tipo == "cuadros_numericos":
 
 elif tipo == "eleccion_usuario":
     print("-> Unidades geográficas definidas por el usuario.")
+
+
+# ── PASO 1: Matriz de presencia/ausencia (taxon_name × id_geo) ──────────────
+
+# Normalizar id_geo a string para que el tipo sea consistente en todo el programa
+df["id_geo"] = df["id_geo"].astype(str).str.strip()
+
+# Determinar las unidades geográficas canónicas y su orden
+if tipo == "estados":
+    unidades = ESTADOS_MEXICO          # orden fijo: AGU=1 … ZAC=32
+elif tipo == "cuadros_numericos":
+    unidades = sorted(df["id_geo"].dropna().astype(str).unique(),
+                      key=lambda x: int(x))
+else:
+    unidades = sorted(df["id_geo"].dropna().astype(str).unique())
+
+n_unidades = len(unidades)
+
+# Construir matriz: una fila por taxón, una columna por unidad geográfica
+presencia_ausencia = (
+    df.groupby(["taxon_name", "id_geo"])
+    .size()
+    .unstack(fill_value=0)
+    .clip(upper=1)
+)
+
+# Asegurar que estén todas las columnas canónicas (rellenar con 0 si falta)
+for u in unidades:
+    if u not in presencia_ausencia.columns:
+        presencia_ausencia[u] = 0
+presencia_ausencia = presencia_ausencia[unidades]
+
+# Para estados: renombrar columnas a índices numéricos 1-32
+if tipo == "estados":
+    presencia_ausencia.columns = list(range(1, n_unidades + 1))
+
+print("\nMatriz de presencia-ausencia (taxon_name × id_geo):")
+print(presencia_ausencia)
+
+# Guardar en Excel
+try:
+    presencia_ausencia.to_excel("matriz_presencia_ausencia.xlsx")
+    print("\nMatriz guardada en 'matriz_presencia_ausencia.xlsx'")
+except PermissionError:
+    print("\n[Aviso] Cierra 'matriz_presencia_ausencia.xlsx' en Excel e intenta de nuevo.")

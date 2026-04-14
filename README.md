@@ -1,4 +1,4 @@
-# gPatterns — Clasificador de Unidades Geográficas
+# gPatterns
 
 Herramienta para leer y clasificar datos geográficos de México a partir de una base de datos con el método de G-pattern, como paso previo a su visualización en el sitio Sipmx.
 
@@ -36,7 +36,7 @@ El programa detecta automáticamente cuál de los tres tipos de unidad geográfi
 ## Uso
 
 1. Coloca tu archivo Excel en la misma carpeta que `prueba1.py`.
-2. Cambia el nombre del archivo en la línea 35 si es necesario:
+2. Cambia el nombre del archivo en la línea correspondiente si es necesario:
 
 ```python
 df = pd.read_excel("basePrueba.xlsx")
@@ -50,20 +50,43 @@ python prueba1.py
 
 ---
 
+## Proceso implementado
+
+### Paso 1 — Matriz de presencia/ausencia ✅
+
+El programa construye una matriz `taxon_name × id_geo` con valores 0/1 (ausencia/presencia).
+
+- Los valores de `id_geo` se normalizan a string para garantizar consistencia de tipos.
+- Se aseguran todas las unidades canónicas en las columnas (las unidades sin registros se rellenan con 0).
+- Para `estados`: las columnas se renombran a índices numéricos 1–32 según el orden canónico de `ESTADOS_MEXICO`.
+- La matriz se exporta a `matriz_presencia_ausencia.xlsx`.
+
+### Pasos 2–6 — En desarrollo
+
+| Paso | Descripción |
+|------|-------------|
+| 2 | Agrupar para identificar los Patrones-G |
+| 3 | Numerar secuencialmente los patrones |
+| 4 | Crear tabla normalizada `rel_gpattern_idgeo` |
+| 5 | Crear relación `rel_gpattern_taxon` + patrón G0 |
+| 6 | Crear catálogo `cat_gpatterns` con atributo `disjoint` |
+
+---
+
 ## Salida esperada
-
-El programa imprime:
-
-- Número de filas y columnas del archivo
-- Las primeras 10 filas del contenido
-- El tipo de unidad geográfica detectada
 
 **Ejemplo con cuadros SIMPMX:**
 ```
-Filas: 150  |  Columnas: ['id_geo', 'valor', ...]
-...
+Filas: 2999  |  Columnas: ['id_geo', 'taxon_name']
 Tipo de unidad geográfica detectada: 'cuadros_numericos'
 -> Unidades: cuadros (ID numérico).
+
+Matriz de presencia-ausencia (taxon_name × id_geo):
+id_geo           1  2  3  ...
+taxon_name
+Abies religiosa  0  0  1  ...
+...
+Matriz guardada en 'matriz_presencia_ausencia.xlsx'
 ```
 
 ---
