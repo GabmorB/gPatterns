@@ -1,3 +1,23 @@
+# Archivos de datos de entrada
 /basePrueba.xlsx
+basePrueba_estados.xlsx
+
+# Documentos de referencia
 /G-patterns_2025_08_13.docx
 /Proyecto_GPatterns_en_Python.docx
+proyecto_GPatterns_en_Python.docx
+
+# Archivos de salida generados por el programa
+matriz_presencia_ausencia.xlsx
+tabla_patrones.xlsx
+tabla_prueba.xlsx
+rel_gpattern_idgeo.xlsx
+rel_gpattern_taxon.xlsx
+cat_gpatterns.xlsx
+
+# Python
+__pycache__/
+*.pyc
+
+# Archivos temporales de Office
+~$*
