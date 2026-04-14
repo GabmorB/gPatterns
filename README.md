@@ -83,11 +83,18 @@ Tabla normalizada con una fila por cada combinación `(g_pattern_id, id_geo)` do
 
 Asigna a cada taxón su `g_pattern_id`. Busca el vector de presencia del taxón en la tabla de patrones para identificar a qué G pertenece. Los taxones con distribución única reciben **G0**. Se exporta a `rel_gpattern_taxon.xlsx`.
 
-### Paso 6 — En desarrollo
+### Paso 6 — `cat_gpatterns` ✅
 
-| Paso | Descripción |
-|------|-------------|
-| 6 | Crear catálogo `cat_gpatterns` con atributo `disjoint` |
+Catálogo de patrones con sus atributos. Se exporta a `cat_gpatterns.xlsx`.
+
+| Columna | Descripción |
+|---------|-------------|
+| `g_pattern_id` | Identificador del patrón (G1, G2… G0) |
+| `taxa_count` | Número de taxones que comparten ese patrón |
+| `Gi` | Número de unidades geográficas con presencia |
+| `disjoint` | `True` si el territorio es no contiguo, `False` si es contiguo, `None` si no aplica |
+
+El atributo `disjoint` se calcula con la matriz de adyacencia preconstruida para estados de México. Para cuadros, lo calcula SIPMX. Para `eleccion_usuario` queda como `None`.
 
 ---
 

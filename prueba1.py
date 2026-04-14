@@ -9,6 +9,63 @@ ESTADOS_MEXICO = [
     "SIN", "SON", "TAB", "TAM", "TLA", "VER", "YUC", "ZAC"
 ]
 
+# Matriz de adyacencia de estados de México (frontera terrestre compartida)
+ADYACENCIA_ESTADOS = {
+    "AGU": ["GUA", "JAL", "ZAC"],
+    "BCN": ["BCS"],
+    "BCS": ["BCN"],
+    "CAM": ["ROO", "TAB", "YUC"],
+    "CHH": ["COA", "DUR", "SIN", "SON"],
+    "CHP": ["OAX", "TAB", "VER"],
+    "CMX": ["MEX", "MOR"],
+    "COA": ["CHH", "DUR", "NLE", "TAM", "ZAC"],
+    "COL": ["JAL", "MIC"],
+    "DUR": ["CHH", "COA", "NAY", "SIN", "ZAC"],
+    "GRO": ["MEX", "MIC", "MOR", "OAX", "PUE"],
+    "GUA": ["AGU", "HID", "JAL", "MIC", "QUE", "SLP", "ZAC"],
+    "HID": ["GUA", "MEX", "PUE", "QUE", "SLP", "TLA", "VER"],
+    "JAL": ["AGU", "COL", "DUR", "GUA", "MIC", "NAY", "ZAC"],
+    "MEX": ["CMX", "GRO", "HID", "MIC", "MOR", "PUE", "QUE", "TLA"],
+    "MIC": ["COL", "GRO", "GUA", "JAL", "MEX", "QUE"],
+    "MOR": ["CMX", "GRO", "MEX", "PUE"],
+    "NAY": ["DUR", "JAL", "SIN", "ZAC"],
+    "NLE": ["COA", "SLP", "TAM", "ZAC"],
+    "OAX": ["CHP", "GRO", "PUE", "VER"],
+    "PUE": ["GRO", "HID", "MEX", "MOR", "OAX", "TLA", "VER"],
+    "QUE": ["GUA", "HID", "MEX", "MIC", "SLP"],
+    "ROO": ["CAM", "YUC"],
+    "SLP": ["COA", "GUA", "HID", "NLE", "QUE", "TAM", "VER", "ZAC"],
+    "SIN": ["CHH", "DUR", "NAY", "SON"],
+    "SON": ["CHH", "SIN"],
+    "TAB": ["CAM", "CHP", "VER"],
+    "TAM": ["COA", "NLE", "SLP", "VER"],
+    "TLA": ["HID", "MEX", "PUE"],
+    "VER": ["CHP", "HID", "OAX", "PUE", "SLP", "TAB", "TAM"],
+    "YUC": ["CAM", "ROO"],
+    "ZAC": ["AGU", "COA", "DUR", "GUA", "JAL", "NAY", "NLE", "SLP"],
+}
+
+
+def es_conexo(estados_presentes, adyacencia):
+    """
+    Verifica si un conjunto de estados forma territorio contiguo (subgrafo conexo).
+    Retorna True si es conexo, False si tiene componentes separados (disjoint).
+    """
+    from collections import deque
+    estados = set(estados_presentes)
+    if len(estados) <= 1:
+        return True
+    visitados = {next(iter(estados))}
+    cola = deque(visitados)
+    while cola:
+        actual = cola.popleft()
+        for vecino in adyacencia.get(actual, []):
+            if vecino in estados and vecino not in visitados:
+                visitados.add(vecino)
+                cola.append(vecino)
+    return visitados == estados
+
+
 def detectar_tipo_geo(serie):
     """
     Función que detecta el tipo de unidad geográfica en id_geo:
@@ -185,3 +242,44 @@ try:
     print("\nTabla guardada en 'rel_gpattern_taxon.xlsx'")
 except PermissionError:
     print("\n[Aviso] Cierra 'rel_gpattern_taxon.xlsx' en Excel e intenta de nuevo.")
+
+
+# ── PASO 6: cat_gpatterns ────────────────────────────────────────────────────
+# Catálogo de patrones con atributos: g_pattern_id, taxa_count, Gi, disjoint
+#   disjoint = True  → territorio NO contiguo (componentes separados)
+#   disjoint = False → territorio contiguo
+#   disjoint = None  → no aplica (cuadros: lo calcula SIPMX; eleccion_usuario: sin mapa)
+
+filas = []
+for _, fila in gn.iterrows():
+    if tipo == "estados":
+        estados_presentes = [unidades[i] for i, idx in enumerate(indices) if fila[idx] == 1]
+        disjoint = not es_conexo(estados_presentes, ADYACENCIA_ESTADOS)
+    else:
+        disjoint = None
+
+    filas.append({
+        "g_pattern_id": fila["g_pattern_id"],
+        "taxa_count":   int(fila["taxa_count"]),
+        "Gi":           int(fila["Gi"]),
+        "disjoint":     disjoint,
+    })
+
+# Fila G0: total de taxones con distribución única
+filas.append({
+    "g_pattern_id": "G0",
+    "taxa_count":   int(g0["taxa_count"].sum()),
+    "Gi":           None,
+    "disjoint":     None,
+})
+
+cat_gpatterns = pd.DataFrame(filas)
+
+print("\nCatálogo cat_gpatterns:")
+print(cat_gpatterns.to_string(index=False))
+
+try:
+    cat_gpatterns.to_excel("cat_gpatterns.xlsx", index=False)
+    print("\nCatálogo guardado en 'cat_gpatterns.xlsx'")
+except PermissionError:
+    print("\n[Aviso] Cierra 'cat_gpatterns.xlsx' en Excel e intenta de nuevo.")
