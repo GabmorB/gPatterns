@@ -136,3 +136,25 @@ tabla_patrones = tabla_patrones[["g_pattern_id", "taxa_count", "Gi"] + indices]
 
 print(f"\nPatrones numerados: G1–G{len(gn)}  |  G0: {len(g0)} patrones únicos")
 print(tabla_patrones[["g_pattern_id", "taxa_count", "Gi"]].to_string(index=False))
+
+
+# ── PASO 4: rel_gpattern_idgeo ───────────────────────────────────────────────
+# Tabla normalizada: una fila por cada (g_pattern_id, id_geo) con presencia.
+# Solo patrones G1, G2, … (G0 no tiene un patrón geográfico único definido).
+
+registros = []
+for _, fila in gn.iterrows():
+    for idx, id_geo in zip(indices, unidades):
+        if fila[idx] == 1:
+            registros.append({"g_pattern_id": fila["g_pattern_id"], "id_geo": id_geo})
+
+rel_gpattern_idgeo = pd.DataFrame(registros)
+
+print("\nTabla rel_gpattern_idgeo:")
+print(rel_gpattern_idgeo.to_string(index=False))
+
+try:
+    rel_gpattern_idgeo.to_excel("rel_gpattern_idgeo.xlsx", index=False)
+    print("\nTabla guardada en 'rel_gpattern_idgeo.xlsx'")
+except PermissionError:
+    print("\n[Aviso] Cierra 'rel_gpattern_idgeo.xlsx' en Excel e intenta de nuevo.")

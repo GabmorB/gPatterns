@@ -75,11 +75,14 @@ Asigna un identificador a cada patrón:
 - **G1, G2, G3…** — patrones compartidos (`taxa_count >= 2`), numerados por orden de `taxa_count` desc → `Gi` desc
 - **G0** — patrones únicos (`taxa_count == 1`), no forman un patrón compartido
 
-### Pasos 4–6 — En desarrollo
+### Paso 4 — `rel_gpattern_idgeo` ✅
+
+Tabla normalizada con una fila por cada combinación `(g_pattern_id, id_geo)` donde hay presencia. Solo incluye patrones G1, G2… (no G0). Se exporta a `rel_gpattern_idgeo.xlsx`. Es la tabla que usa SIPMX para graficar los patrones en el mapa.
+
+### Pasos 5–6 — En desarrollo
 
 | Paso | Descripción |
 |------|-------------|
-| 4 | Crear tabla normalizada `rel_gpattern_idgeo` |
 | 5 | Crear relación `rel_gpattern_taxon` + patrón G0 |
 | 6 | Crear catálogo `cat_gpatterns` con atributo `disjoint` |
 
