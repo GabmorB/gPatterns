@@ -79,11 +79,14 @@ Asigna un identificador a cada patrón:
 
 Tabla normalizada con una fila por cada combinación `(g_pattern_id, id_geo)` donde hay presencia. Solo incluye patrones G1, G2… (no G0). Se exporta a `rel_gpattern_idgeo.xlsx`. Es la tabla que usa SIPMX para graficar los patrones en el mapa.
 
-### Pasos 5–6 — En desarrollo
+### Paso 5 — `rel_gpattern_taxon` ✅
+
+Asigna a cada taxón su `g_pattern_id`. Busca el vector de presencia del taxón en la tabla de patrones para identificar a qué G pertenece. Los taxones con distribución única reciben **G0**. Se exporta a `rel_gpattern_taxon.xlsx`.
+
+### Paso 6 — En desarrollo
 
 | Paso | Descripción |
 |------|-------------|
-| 5 | Crear relación `rel_gpattern_taxon` + patrón G0 |
 | 6 | Crear catálogo `cat_gpatterns` con atributo `disjoint` |
 
 ---
