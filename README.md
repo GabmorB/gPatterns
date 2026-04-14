@@ -69,11 +69,16 @@ Agrupa los taxones que tienen exactamente el mismo vector de presencia/ausencia.
 
 Los patrones se ordenan por `taxa_count` descendente, luego por `Gi` descendente.
 
-### Pasos 3–6 — En desarrollo
+### Paso 3 — Numeración secuencial ✅
+
+Asigna un identificador a cada patrón:
+- **G1, G2, G3…** — patrones compartidos (`taxa_count >= 2`), numerados por orden de `taxa_count` desc → `Gi` desc
+- **G0** — patrones únicos (`taxa_count == 1`), no forman un patrón compartido
+
+### Pasos 4–6 — En desarrollo
 
 | Paso | Descripción |
 |------|-------------|
-| 3 | Numerar secuencialmente los patrones |
 | 4 | Crear tabla normalizada `rel_gpattern_idgeo` |
 | 5 | Crear relación `rel_gpattern_taxon` + patrón G0 |
 | 6 | Crear catálogo `cat_gpatterns` con atributo `disjoint` |

@@ -119,3 +119,20 @@ patrones = patrones.sort_values(
 
 print(f"\nPatrones-G identificados: {len(patrones)}")
 print(patrones[["taxa_count", "Gi"]].to_string(index=False))
+
+
+# ── PASO 3: Numerar secuencialmente los patrones ─────────────────────────────
+# G1, G2, … → patrones compartidos (taxa_count >= 2), ya ordenados
+# G0         → patrones únicos (taxa_count == 1), no forman un patrón compartido
+
+gn = patrones[patrones["taxa_count"] >= 2].copy().reset_index(drop=True)
+g0 = patrones[patrones["taxa_count"] == 1].copy().reset_index(drop=True)
+
+gn["g_pattern_id"] = ["G" + str(i + 1) for i in range(len(gn))]
+g0["g_pattern_id"] = "G0"
+
+tabla_patrones = pd.concat([gn, g0]).reset_index(drop=True)
+tabla_patrones = tabla_patrones[["g_pattern_id", "taxa_count", "Gi"] + indices]
+
+print(f"\nPatrones numerados: G1–G{len(gn)}  |  G0: {len(g0)} patrones únicos")
+print(tabla_patrones[["g_pattern_id", "taxa_count", "Gi"]].to_string(index=False))
