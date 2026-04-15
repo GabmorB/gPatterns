@@ -35,9 +35,6 @@ nombres_especies = sorted({
 # Selecciona 80 especies al azar
 especies = random.sample(nombres_especies, 80)
 
-# -----------------------------------------------------------------------
-# Patrones de distribución predefinidos para que la tabla sea interesante
-# -----------------------------------------------------------------------
 # Cada patrón es un subconjunto de estados; varias especies lo comparten.
 patrones = {
     "amplia":        ESTADOS_MEXICO,                          # todos los estados
@@ -87,9 +84,6 @@ for patron, n in frecuencias.items():
         asignacion.append((especies[idx], estados_patron))
         idx += 1
 
-# -----------------------------------------------------------------------
-# Construir el DataFrame de registros (una fila por ocurrencia)
-# -----------------------------------------------------------------------
 registros = []
 for taxon, estados in asignacion:
     for estado in estados:

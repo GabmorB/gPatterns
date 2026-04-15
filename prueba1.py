@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-# Lista ordenada de los 32 estados de México (ISO 3166-2:MX)
+# Lista ordenada de los 32 estados de México
 ESTADOS_MEXICO = [
     "AGU", "BCN", "BCS", "CAM", "CHH", "CHP", "CMX", "COA",
     "COL", "DUR", "GRO", "GUA", "HID", "JAL", "MEX", "MIC",
@@ -9,7 +9,7 @@ ESTADOS_MEXICO = [
     "SIN", "SON", "TAB", "TAM", "TLA", "VER", "YUC", "ZAC"
 ]
 
-# Matriz de adyacencia de estados de México (frontera terrestre compartida)
+# Matriz de adyacencia de estados de México
 ADYACENCIA_ESTADOS = {
     "AGU": ["GUA", "JAL", "ZAC"],
     "BCN": ["BCS"],
@@ -48,7 +48,7 @@ ADYACENCIA_ESTADOS = {
 
 def es_conexo(estados_presentes, adyacencia):
     """
-    Verifica si un conjunto de estados forma territorio contiguo (subgrafo conexo).
+    Verifica si un conjunto de estados forma territorio contiguo.
     Retorna True si es conexo, False si tiene componentes separados (disjoint).
     """
     from collections import deque
@@ -109,7 +109,7 @@ elif tipo == "eleccion_usuario":
     print("-> Unidades geográficas definidas por el usuario.")
 
 
-# ── PASO 1: Matriz de presencia/ausencia (taxon_name × id_geo) ──────────────
+# Matriz de presencia/ausencia (taxon_name × id_geo)
 
 # Normalizar id_geo a string para que el tipo sea consistente en todo el programa
 df["id_geo"] = df["id_geo"].astype(str).str.strip()
@@ -133,7 +133,7 @@ presencia_ausencia = (
     .clip(upper=1)
 )
 
-# Asegurar que estén todas las columnas canónicas (rellenar con 0 si falta)
+# Asegurar que estén todas las columnas canónicas (Se rellena con 0 si falta)
 for u in unidades:
     if u not in presencia_ausencia.columns:
         presencia_ausencia[u] = 0
@@ -143,8 +143,6 @@ presencia_ausencia = presencia_ausencia[unidades]
 if tipo == "estados":
     presencia_ausencia.columns = list(range(1, n_unidades + 1))
 
-print("\nMatriz de presencia-ausencia (taxon_name × id_geo):")
-print(presencia_ausencia)
 
 # Guardar en Excel
 try:
@@ -154,7 +152,7 @@ except PermissionError:
     print("\n[Aviso] Cierra 'matriz_presencia_ausencia.xlsx' en Excel e intenta de nuevo.")
 
 
-# ── PASO 2: Agrupar para identificar los Patrones-G ─────────────────────────
+# Agrupar para identificar los Patrones-G
 # Agrupa los taxones que tienen exactamente el mismo vector de presencia/ausencia.
 # Cada grupo único es un Patrón-G.
 
@@ -174,13 +172,10 @@ patrones = patrones.sort_values(
     ["taxa_count", "Gi"], ascending=[False, False]
 ).reset_index(drop=True)
 
-print(f"\nPatrones-G identificados: {len(patrones)}")
-print(patrones[["taxa_count", "Gi"]].to_string(index=False))
 
-
-# ── PASO 3: Numerar secuencialmente los patrones ─────────────────────────────
-# G1, G2, … → patrones compartidos (taxa_count >= 2), ya ordenados
-# G0         → patrones únicos (taxa_count == 1), no forman un patrón compartido
+# Numerar secuencialmente los patrones
+# G1, G2, …  patrones compartidos (taxa_count >= 2), ya ordenados
+# G0         patrones únicos (taxa_count == 1), no forman un patrón compartido
 
 gn = patrones[patrones["taxa_count"] >= 2].copy().reset_index(drop=True)
 g0 = patrones[patrones["taxa_count"] == 1].copy().reset_index(drop=True)
@@ -191,17 +186,9 @@ g0["g_pattern_id"] = "G0"
 tabla_patrones = pd.concat([gn, g0]).reset_index(drop=True)
 tabla_patrones = tabla_patrones[["g_pattern_id", "taxa_count", "Gi"] + indices]
 
-print(f"\nPatrones numerados: G1–G{len(gn)}  |  G0: {len(g0)} patrones únicos")
-print(tabla_patrones[["g_pattern_id", "taxa_count", "Gi"]].to_string(index=False))
-
-try:
-    tabla_patrones[["g_pattern_id", "taxa_count", "Gi"]].to_excel("tabla_patrones.xlsx", index=False)
-    print("\nTabla guardada en 'tabla_patrones.xlsx'")
-except PermissionError:
-    print("\n[Aviso] Cierra 'tabla_patrones.xlsx' en Excel e intenta de nuevo.")
 
 
-# ── PASO 4: rel_gpattern_idgeo ───────────────────────────────────────────────
+# Generación del rel_gpattern_idgeo 
 # Tabla normalizada: una fila por cada (g_pattern_id, id_geo) con presencia.
 # Solo patrones G1, G2, … (G0 no tiene un patrón geográfico único definido).
 
@@ -213,17 +200,9 @@ for _, fila in gn.iterrows():
 
 rel_gpattern_idgeo = pd.DataFrame(registros)
 
-print("\nTabla rel_gpattern_idgeo:")
-print(rel_gpattern_idgeo.to_string(index=False))
-
-try:
-    rel_gpattern_idgeo.to_excel("rel_gpattern_idgeo.xlsx", index=False)
-    print("\nTabla guardada en 'rel_gpattern_idgeo.xlsx'")
-except PermissionError:
-    print("\n[Aviso] Cierra 'rel_gpattern_idgeo.xlsx' en Excel e intenta de nuevo.")
 
 
-# ── PASO 5: rel_gpattern_taxon ───────────────────────────────────────────────
+# Generación del rel_gpattern_taxon
 
 lookup = {tuple(fila[indices]): fila["g_pattern_id"]
           for _, fila in tabla_patrones.iterrows()}
@@ -237,46 +216,36 @@ rel_gpattern_taxon = (pd.DataFrame(registros)
                       .sort_values(["g_pattern_id", "taxon_name"])
                       .reset_index(drop=True))
 
-try:
-    rel_gpattern_taxon.to_excel("rel_gpattern_taxon.xlsx", index=False)
-    print("\nTabla guardada en 'rel_gpattern_taxon.xlsx'")
-except PermissionError:
-    print("\n[Aviso] Cierra 'rel_gpattern_taxon.xlsx' en Excel e intenta de nuevo.")
 
 
-# ── PASO 6: cat_gpatterns ────────────────────────────────────────────────────
-# Catálogo de patrones con atributos: g_pattern_id, taxa_count, Gi, disjoint
-#   disjoint = True  → territorio NO contiguo (componentes separados)
-#   disjoint = False → territorio contiguo
-#   disjoint = None  → no aplica (cuadros: lo calcula SIPMX; eleccion_usuario: sin mapa)
+# Catálogo de patrones con atributos: id_pattern, pattern, disjoint, total_geo, total_sp
+#   disjoint = "Disjoint"     territorio NO contiguo (componentes separados)
+#   disjoint = "Non-disjoint" territorio contiguo
+#   disjoint = None           no aplica (cuadros: lo calcula SIPMX; eleccion_usuario: sin mapa)
 
 filas = []
 for _, fila in gn.iterrows():
+    estados_presentes = [unidades[i] for i, idx in enumerate(indices) if fila[idx] == 1]
+
     if tipo == "estados":
-        estados_presentes = [unidades[i] for i, idx in enumerate(indices) if fila[idx] == 1]
-        disjoint = not es_conexo(estados_presentes, ADYACENCIA_ESTADOS)
+        es_disjoint = not es_conexo(estados_presentes, ADYACENCIA_ESTADOS)
+        disjoint_str = "Disjoint" if es_disjoint else "Non-disjoint"
     else:
-        disjoint = None
+        disjoint_str = None
+
+    id_num = int(fila["g_pattern_id"][1:])  # extrae el número de "G1", "G2", …
 
     filas.append({
-        "g_pattern_id": fila["g_pattern_id"],
-        "taxa_count":   int(fila["taxa_count"]),
-        "Gi":           int(fila["Gi"]),
-        "disjoint":     disjoint,
+        "id_pattern": id_num,
+        "pattern":    " ".join(estados_presentes),
+        "disjoint":   disjoint_str,
+        "total_geo":  int(fila["Gi"]),
+        "total_sp":   int(fila["taxa_count"]),
     })
 
-# Fila G0: total de taxones con distribución única
-filas.append({
-    "g_pattern_id": "G0",
-    "taxa_count":   int(g0["taxa_count"].sum()),
-    "Gi":           None,
-    "disjoint":     None,
-})
-
-cat_gpatterns = pd.DataFrame(filas)
-
-print("\nCatálogo cat_gpatterns:")
-print(cat_gpatterns.to_string(index=False))
+cat_gpatterns = (pd.DataFrame(filas)
+                 .sort_values("pattern")
+                 .reset_index(drop=True))
 
 try:
     cat_gpatterns.to_excel("cat_gpatterns.xlsx", index=False)
