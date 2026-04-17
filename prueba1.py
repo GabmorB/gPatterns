@@ -89,7 +89,7 @@ def detectar_tipo_geo(serie):
 
 
 # Comienza el programa, se lee el archivo
-df = pd.read_excel("basePrueba_estados.xlsx")
+df = pd.read_excel("Nayarit.xlsx")
 
 # Se imprimen 10 resultados ordenados en filas y columnas
 print(f"Filas: {len(df)}  |  Columnas: {list(df.columns)}")
@@ -248,7 +248,7 @@ cat_gpatterns = (pd.DataFrame(filas)
                  .reset_index(drop=True))
 
 try:
-    cat_gpatterns.to_excel("cat_gpatterns.xlsx", index=False)
-    print("\nCatálogo guardado en 'cat_gpatterns.xlsx'")
+    cat_gpatterns.to_excel("nayarit_gpattern.xlsx", index=False)
+    print("\nCatálogo guardado en 'nayarit_gpattern.xlsx'")
 except PermissionError:
-    print("\n[Aviso] Cierra 'cat_gpatterns.xlsx' en Excel e intenta de nuevo.")
+    print("\n[Aviso] Cierra 'nayarit_gpattern.xlsx' en Excel e intenta de nuevo.")

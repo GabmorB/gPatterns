@@ -14,17 +14,13 @@ ESTADOS_MEXICO = [
 
 # Géneros y epítetos inventados para construir nombres de especies
 GENEROS = [
-    "Fictusia", "Inventara", "Pruebalis", "Testia", "Falsocactus",
-    "Novoplanta", "Exemplaria", "Simulex", "Dataria", "Codexia",
-    "Arbustela", "Floribunda", "Radicalis", "Foliacea", "Spinulosa"
+    "Rojo", "Azul", "Verde", "Amarillo", "Naranja",
+    "Violeta", "Rosa", "Blanco", "Negro", "Gris"
 ]
 
 EPITETOS = [
-    "mexicana", "nortealis", "sureanis", "montanum", "deserticola",
-    "tropicalis", "costensis", "altiplana", "rupestris", "sylvatica",
-    "lacustris", "aridorum", "humilis", "grandifolia", "parvifolia",
-    "longipes", "brevicaulis", "crassipes", "tenuis", "robusta",
-    "gracilis", "latifolium", "angustifolia", "viridis", "pallida"
+    "brillante", "opaco", "oscuro", "claro", "intenso",
+    "palido", "vivo", "suave", "profundo", "tenue"
 ]
 
 # Genera nombres de especies únicos (Género + epíteto)
@@ -55,7 +51,7 @@ patrones = {
 }
 
 # Asignar patrones a las 80 especies con diferente frecuencia
-# (más especies con patrones frecuentes → taxa_count alto en la tabla)
+# (más especies con patrones frecuentes taxa_count alto en la tabla)
 frecuencias = {
     "amplia":        8,
     "norte":         7,
@@ -104,4 +100,4 @@ print(df.head(10).to_string(index=False))
 df.to_excel("basePrueba_estados.xlsx", index=False)
 print("\nArchivo guardado en 'basePrueba_estados.xlsx'")
 print("-> Para probarlo en prueba1.py cambia la línea:")
-print("   pd.read_excel('basePrueba.xlsx')  =>  pd.read_excel('basePrueba_estados.xlsx')")
+print("   pd.read_excel('basePrueba.xlsx')")
